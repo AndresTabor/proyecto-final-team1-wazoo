@@ -9,6 +9,9 @@ from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, User
+from routes import user_bp
+
+from flask_jwt_extended import JWTManager
 #from models import Person
 
 app = Flask(__name__)
@@ -26,6 +29,9 @@ db.init_app(app)
 CORS(app)
 setup_admin(app)
 
+app.config["JWT_SECRET_KEY"] = "super-secret"
+jwt = JWTManager(app)
+
 # Handle/serialize errors like a JSON object
 @app.errorhandler(APIException)
 def handle_invalid_usage(error):
@@ -36,7 +42,7 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
-
+app.register_blueprint(user_bp)
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
