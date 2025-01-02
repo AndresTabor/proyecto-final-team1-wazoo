@@ -1,6 +1,7 @@
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
+from datetime import timedelta
 import os
 from flask import Flask, request, jsonify, url_for
 from flask_migrate import Migrate
@@ -29,7 +30,9 @@ db.init_app(app)
 CORS(app)
 setup_admin(app)
 
-app.config["JWT_SECRET_KEY"] = "super-secret"
+secret = os.getenv("JWT_SECRET_KEY")
+app.config["JWT_SECRET_KEY"] = secret
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)
 jwt = JWTManager(app)
 
 # Handle/serialize errors like a JSON object

@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask import Flask, request, jsonify
 from flask_bcrypt import Bcrypt
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 
 from models import User, db
 
@@ -30,11 +30,9 @@ def login():
     
     return jsonify({"msg": "Bad password"}), 401
 
-@user_bp.route("/protected", methods=["GET"])
+@user_bp.route("/logout", methods=["DELETE"])
 @jwt_required()
-def protected():
-    # Accede a la identidad del usuario actual con get_jwt_identity
-    current_user_id = get_jwt_identity()
-    user = User.query.get(current_user_id)
-    
-    return jsonify({"id": user.id, "username": user.username }), 200
+def logout():
+    jti = get_jwt()["jti"]
+    jwt_redis_blocklist.set(jti, "", ex=ACCESS_EXPIRES)
+    return jsonify(msg="Access token revoked")

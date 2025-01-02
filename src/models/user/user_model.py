@@ -9,7 +9,7 @@ class User(db.Model):
     date_at = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
 
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<User %r>' % self.email
 
     def serialize(self):
         return {
