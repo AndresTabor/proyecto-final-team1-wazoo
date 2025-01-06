@@ -18,6 +18,9 @@ flask-cors = "*"
 gunicorn = "*"
 mysqlclient = "*"
 flask-admin = "*"
+flask-bcrypt = "*"
+flask-jwt-extended = "*"
+redis = "*"
 
 [requires]
 python_version = "3.10"
