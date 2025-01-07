@@ -8,6 +8,8 @@ class User(db.Model):
     is_active = db.Column(db.Boolean(), unique=False, nullable=False, default=True)
     date_at = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
 
+    client = db.relationship('Client', back_populates='user', uselist=False, cascade="all, delete-orphan")
+
     def __repr__(self):
         return '<User %r>' % self.email
 

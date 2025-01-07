@@ -3,9 +3,10 @@ from flask import Blueprint
 from flask import Flask, request, jsonify
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, jwt_required
+from sqlalchemy.exc import SQLAlchemyError
 
 
-from models import User, db
+from models import User, db, Client
 
 user_bp = Blueprint('user_bp', __name__)
 bcrypt = Bcrypt()
@@ -17,10 +18,18 @@ def register():
     new_user = User(**user_data)
     db.session.add(new_user)
     try:
+        db.session.add(new_user)
+        db.session.flush()  
+        new_client = Client(id_user=new_user.id, fullname="New Client")
+        db.session.add(new_client)
         db.session.commit()
-    except Exception as e:
+    
+    except SQLAlchemyError as e:
         db.session.rollback()
-        return jsonify({"msg": "Error saving user", "error": str(e)}), 400
+        return jsonify({
+            "msg": "Error during registration",
+            "error": str(e)
+        }), 400
     
     return jsonify(new_user.serialize()), 201
 

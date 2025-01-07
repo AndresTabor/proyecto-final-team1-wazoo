@@ -7,5 +7,6 @@ class Client(db.Model):
     fullname = db.Column(db.String(120), nullable = False)
     
     id_user = db.Column(db.Integer, db.ForeignKey("user.id"), nullable = False)
+    user = db.relationship('User', back_populates='client')
 
     favorites = db.relationship('Favorites', back_populates='client', cascade="all, delete-orphan")
