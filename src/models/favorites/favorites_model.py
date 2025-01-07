@@ -4,10 +4,10 @@ from models import db
 class Favorites(db.Model):
     __tablename__ = 'favorites'
 
-    client_id = db.Column(db.Integer, db.ForeignKey('client.id'), nullable=False)  
+    client_id = db.Column(db.Integer, db.ForeignKey('clients.id'), nullable=False)  
     client = db.relationship('Client', back_populates='favorites')
 
-    professional_id = db.Column(db.Integer, db.ForeignKey('professional.id'), nullable=False)  
+    professional_id = db.Column(db.Integer, db.ForeignKey('professionals.id'), nullable=False)  
     professional = db.relationship('Professional', back_populates='favorites')
 
     __table_args__ = (
