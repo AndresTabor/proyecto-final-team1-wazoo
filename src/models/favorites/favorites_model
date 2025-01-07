@@ -2,8 +2,8 @@ from sqlalchemy import PrimaryKeyConstraint
 from models import db
 
 class Favorites(db.Model):
-   
-    
+    __tablename__ = 'favorites'
+
     client_id = db.Column(db.Integer, db.ForeignKey('client.id'), nullable=False)  
     client = db.relationship('Client', back_populates='favorites')
 
