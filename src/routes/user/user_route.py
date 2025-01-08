@@ -20,7 +20,7 @@ def register():
     try:
         db.session.add(new_user)
         db.session.flush()  
-        new_client = Client(id_user=new_user.id, fullname="New Client")
+        new_client = Client(id_user=new_user.id, fullname=user_data["fullname"])
         db.session.add(new_client)
         db.session.commit()
     
