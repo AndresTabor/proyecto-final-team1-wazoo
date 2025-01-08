@@ -12,7 +12,8 @@ import redis
 
 from admin import setup_admin
 from models import db, User
-from routes import user_bp, jwt_redis_blocklist
+from routes import user_bp
+from config import jwt_redis_blocklist
 
 from flask_jwt_extended import JWTManager
 
@@ -42,12 +43,7 @@ app.config["JWT_SECRET_KEY"] = secret
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = ACCESS_EXPIRES
 jwt = JWTManager(app)
 
-# jwt_redis_blocklist = redis.StrictRedis(
-#     host="redis", 
-#     port=6379, 
-#     db=0, 
-#     decode_responses=True
-# )
+
 
 @jwt.token_in_blocklist_loader
 def check_if_token_is_revoked(jwt_header, jwt_payload: dict):

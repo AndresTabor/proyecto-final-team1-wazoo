@@ -1,0 +1,1 @@
+from .jwt_redis_blocklist import jwt_redis_blocklist

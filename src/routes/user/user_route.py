@@ -4,7 +4,7 @@ from flask import Flask, request, jsonify
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, jwt_required
 from sqlalchemy.exc import SQLAlchemyError
-
+from config import jwt_redis_blocklist
 
 from models import User, db, Client
 
@@ -51,7 +51,6 @@ def login():
 @user_bp.route("/logout", methods=["DELETE"])
 @jwt_required()
 def logout():
-    from routes import jwt_redis_blocklist
     jti = get_jwt()["jti"]  
     jwt_redis_blocklist.set(jti, "", timedelta(minutes=15))  
     return jsonify(msg="Logout successful")
