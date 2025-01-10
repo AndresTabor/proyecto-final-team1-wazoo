@@ -11,8 +11,6 @@ def setup_admin(app):
     
     # Add your models here, for example this is how we add a the User model to the admin
     admin.add_view(ModelView(User, db.session))
-    admin.add_view(ModelView(Client, db.session))
-    admin.add_view(ModelView(Professional, db.session))
     admin.add_view(ModelView(Favorites, db.session))
 
     # You can duplicate that line to add mew models
