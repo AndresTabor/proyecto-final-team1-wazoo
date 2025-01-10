@@ -32,8 +32,8 @@ def create_new_post():
             "message": "Publicación creada exitosamente",
             "data": new_post.serialize()
         }), 201
-    except Exception as error:
-        return jsonify({"error": "Ocurrió un error al crear la publicación", "details": str(error)}), 500
+    except Exception as e:
+        return jsonify({"error": "Ocurrió un error al crear la publicación", "details": str(e)}), 500
 
 @post_bp.route('/post', methods=['GET'])
 def get_all_post():
@@ -44,5 +44,5 @@ def get_all_post():
             "status": "success",
             "data": [pub.serialize() for pub in publications]
         }), 200
-    except Exception as error:
-        return jsonify({"error": "Ocurrió un error al obtener las publicaciones", "details": str(error)}), 500
+    except Exception as e:
+        return jsonify({"error": "Ocurrió un error al obtener las publicaciones", "details": str(e)}), 500
