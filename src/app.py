@@ -12,8 +12,7 @@ import redis
 
 from admin import setup_admin
 from models import db, User
-from routes import user_bp
-from config import jwt_redis_blocklist
+from routes import user_bp, jwt_redis_blocklist
 
 from flask_jwt_extended import JWTManager
 
@@ -52,6 +51,7 @@ def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
     return token_in_redis is not None
 
 app.register_blueprint(user_bp, url_prefix='/users')
+app.register_blueprint(post_bp)
 
 
 # Handle/serialize errors like a JSON object
