@@ -15,7 +15,7 @@ bcrypt = Bcrypt()
 def register():
     user_data = request.get_json()
     user_data["password"] = bcrypt.generate_password_hash(user_data["password"]).decode('utf-8')
-    new_user = User(**user_data)
+    new_user = User(email=user_data["email"], password=user_data["password"])
     db.session.add(new_user)
     try:
         db.session.add(new_user)
