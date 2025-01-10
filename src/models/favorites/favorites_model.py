@@ -3,21 +3,18 @@ from models import db
 
 class Favorites(db.Model):
     __tablename__ = 'favorites'
+    id = db.Column(db.Integer, primary_key=True)
 
-    client_id = db.Column(db.Integer, db.ForeignKey('clients.id'), nullable=False)  
-    client = db.relationship('Client', back_populates='favorites')
+    # user_from_id = 
+    # user_to_id = 
 
-    professional_id = db.Column(db.Integer, db.ForeignKey('professionals.id'), nullable=False)  
-    professional = db.relationship('Professional', back_populates='favorites')
-
-    __table_args__ = (
-        PrimaryKeyConstraint('client_id', 'professional_id'),
-        {}
-    )
+    # __table_args__ = (
+    #     PrimaryKeyConstraint('client_id', 'professional_id'),
+    #     {}
+    # )
 
     def serialize(self):
         return {
-            'client_id': self.client_id,
-            'professional_id': self.professional_id,            
+                 
         }
     

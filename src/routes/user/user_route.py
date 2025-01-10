@@ -6,7 +6,7 @@ from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, j
 from sqlalchemy.exc import SQLAlchemyError
 from config import jwt_redis_blocklist
 
-from models import User, db, Client
+from models import User, db
 
 user_bp = Blueprint('user_bp', __name__)
 bcrypt = Bcrypt()
@@ -17,11 +17,10 @@ def register():
     user_data["password"] = bcrypt.generate_password_hash(user_data["password"]).decode('utf-8')
     new_user = User(email=user_data["email"], password=user_data["password"])
     db.session.add(new_user)
+
     try:
         db.session.add(new_user)
         db.session.flush()  
-        new_client = Client(id_user=new_user.id, fullname=user_data["fullname"])
-        db.session.add(new_client)
         db.session.commit()
     
     except SQLAlchemyError as e:
