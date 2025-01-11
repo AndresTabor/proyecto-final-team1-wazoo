@@ -7,7 +7,7 @@ from pydantic import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
 from config import jwt_redis_blocklist
 
-from models import User, db, UserDto
+from models import User, db, UserDto, UserUpdatedDto
 
 
 user_bp = Blueprint('user_bp', __name__)
@@ -21,18 +21,16 @@ def register():
         error_messages = []
         for error in e.errors():
             if error['type'] == 'missing':
-                # Campo faltante
                 error_messages.append(f"Field '{error['loc'][0]}' is required.")
             else:
-                # Otro tipo de error, usa el mensaje personalizado
                 error_messages.append(error['msg'])
 
         return jsonify({"errors": error_messages}), 400
     
-    user_data["password"] = bcrypt.generate_password_hash(user_data["password"]).decode('utf-8')
-    new_user = User(**user_data)
-    db.session.add(new_user)
-
+    user_data.password = bcrypt.generate_password_hash(user_data.password).decode('utf-8')
+    user = user_data.model_dump()
+    new_user = User(**user)
+    
     try:
         db.session.add(new_user)
         db.session.flush()  
@@ -67,14 +65,31 @@ def logout():
     jwt_redis_blocklist.set(jti, "", timedelta(minutes=15))  
     return jsonify(msg="Logout successful")
 
-@user_bp.route("/profile", methods=["POST"])
+@user_bp.route("/profile/<int:user_id>", methods=["PUT"])
 @jwt_required()
-def update_profile(id):
-    user_data = request.get_json()
-    user = User.query.get(id)
+def update_profile(user_id):
+    user = User.query.get(user_id)
     if user is None:
-        return jsonify({"msg": "user not found with id: {id}"}), 404
+        return jsonify({"msg": "user not found with id: {user_id}"}), 404
     
-    db.session.commit()
+    try:
+        data = request.get_json()
+        if "password" in data:
+            data.pop("password")
+        user_data = UserUpdatedDto(**data)
+    except ValidationError as e:
+        error_messages = [error['msg'] for error in e.errors()]
+        return jsonify({"errors": error_messages}), 400
+    
+    user_data.dtoToUser(user)
+
+    try:  
+        db.session.commit()
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({
+            "msg": "Error during update",
+            "error": str(e)
+        }), 500
     return jsonify(user.serialize()), 200
     
