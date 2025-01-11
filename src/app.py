@@ -51,6 +51,17 @@ def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
     token_in_redis = jwt_redis_blocklist.get(jti)
     return token_in_redis is not None
 
+
+
+@jwt.additional_claims_loader
+def add_claims_to_access_token(identity):
+    user = User.query.get(identity)
+    if user:
+        return {
+            'role': user.role,
+            'is_active': user.is_active
+        }
+
 app.register_blueprint(user_bp, url_prefix='/users')
 app.register_blueprint(post_bp)
 

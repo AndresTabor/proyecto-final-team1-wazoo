@@ -65,9 +65,30 @@ def logout():
     jwt_redis_blocklist.set(jti, "", timedelta(minutes=15))  
     return jsonify(msg="Logout successful")
 
-@user_bp.route("/profile/<int:user_id>", methods=["PUT"])
+@user_bp.route("/profile", methods=["DELETE"])
 @jwt_required()
-def update_profile(user_id):
+def delete_profile():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if user is None:
+        return jsonify({"msg": "user not found with id: {user_id}"}), 404
+    
+    try:
+        user.is_active = False
+        db.session.commit()
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({
+            "msg": "Error during deletion",
+            "error": str(e)
+        }), 500
+    
+    return jsonify({"msg": "User deleted"}), 200
+
+@user_bp.route("/profile", methods=["PUT"])
+@jwt_required()
+def update_profile():
+    user_id = get_jwt_identity()
     user = User.query.get(user_id)
     if user is None:
         return jsonify({"msg": "user not found with id: {user_id}"}), 404
