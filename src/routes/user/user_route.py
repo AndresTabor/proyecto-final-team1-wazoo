@@ -114,3 +114,29 @@ def update_profile():
         }), 500
     return jsonify(user.serialize()), 200
     
+@user_bp.route("/change-password", methods=["PATCH"])
+@jwt_required()
+def update_password():
+    user = User.query.get(get_jwt_identity())
+    if user is None:
+        return jsonify({"msg": "user not found with id: {user_id}"}), 404
+    user_data = request.get_json()
+    
+    if not bcrypt.check_password_hash(user.password, user_data["current_password"]):
+        return jsonify({"msg": "Bad password"}), 401
+    try:
+        user_updated = UserUpdatedDto(password=user_data["new_password"])
+        user_updated.password = bcrypt.generate_password_hash(user_updated.password).decode('utf-8')
+        user_updated.dtoToUser(user)
+    except ValidationError as e:
+        error_messages = [error['msg'] for error in e.errors()]
+        return jsonify({"errors": error_messages}), 400   
+    try:
+        db.session.commit()
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({
+            "msg": "Error during update",
+            "error": str(e)
+        }), 500 
+    return jsonify({"msg:": "password saved"}), 200
