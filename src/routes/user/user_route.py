@@ -5,7 +5,7 @@ from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, jwt_required
 from pydantic import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
-from config import jwt_redis_blocklist
+from config import jwt_redis_blocklist, role_required
 
 from models import User, db, UserDto, UserUpdatedDto
 
@@ -140,3 +140,28 @@ def update_password():
             "error": str(e)
         }), 500 
     return jsonify({"msg:": "password saved"}), 200
+
+@user_bp.route("/profile/role", methods=["PATCH"])
+@jwt_required()
+def update_role():
+    user = User.query.get(get_jwt_identity())
+    if user is None:
+        return jsonify({"msg": "user not found with id: {user_id}"}), 404
+    data = request.get_json()
+    user.role = data["role"]
+    try:
+        db.session.commit()
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({
+            "msg": "Error during update",
+            "error": str(e)
+        }), 500
+    return jsonify(user.serialize()), 200
+
+@user_bp.route("/", methods=["GET"])
+@jwt_required()
+@role_required(["admin"])
+def get_all_users():
+    users = User.query.all()
+    return jsonify([user.serialize() for user in users]), 200

@@ -8,9 +8,10 @@ def role_required(roles):
         @wraps(func)
         def wrapper(*args, **kwargs):
             claims = get_jwt()
-            user_roles = claims.get("roles", [])
+            user_role = claims.get("role", "client")
+            
             user_active = claims.get("is_active", False)
-            if not any(role in roles for role in user_roles):
+            if not user_role in roles:
                 return jsonify({"msg": "Access forbidden: insufficient permissions"}), 403
             if not user_active:
                 return jsonify({"msg": "Access forbidden: user is inactive"}), 403
