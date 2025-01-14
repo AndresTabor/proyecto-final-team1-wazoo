@@ -148,6 +148,10 @@ def update_role():
     if user is None:
         return jsonify({"msg": "user not found with id: {user_id}"}), 404
     data = request.get_json()
+    role = data.get("role")
+    if role == "admin" & user.role != "admin":
+        return jsonify({"msg": "You can't change to admin role"}), 403
+    
     user.role = data["role"]
     try:
         db.session.commit()
