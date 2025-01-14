@@ -13,7 +13,7 @@ import redis
 from admin import setup_admin
 from config import jwt_redis_blocklist
 from models import db, User
-from routes import user_bp, post_bp
+from routes import user_bp, post_bp, jwt_redis_blocklist
 
 from flask_jwt_extended import JWTManager
 
