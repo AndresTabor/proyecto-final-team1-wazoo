@@ -169,3 +169,34 @@ def update_role():
 def get_all_users():
     users = User.query.all()
     return jsonify([user.serialize() for user in users]), 200
+
+
+@user_bp.route('/reset-password',methods=["POST"])
+@jwt_required()
+def reset_password():
+    user_data = request.get_json()
+    claims = get_jwt()
+    email = claims.get("email", None)
+    user = User.query.filter_by(email=email).first()
+    
+    if user is None:
+        return jsonify({"msg":"User with email: {email} not found"}), 404
+    
+    if user_data['password'] == user_data['confirm_password']:
+        try:
+            user_updated = UserUpdatedDto(password=user_data["password"])
+            user_updated.password = bcrypt.generate_password_hash(user_updated.password).decode('utf-8')
+            user_updated.dtoToUser(user)
+            
+        except ValidationError as e:
+            error_messages = [error['msg'] for error in e.errors()]
+            return jsonify({"errors": error_messages}), 400   
+        try:
+            db.session.commit()
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            return jsonify({
+                "msg": "Error during update",
+                "error": str(e)
+            }), 500 
+    return jsonify({"msg:": "password saved"}), 200

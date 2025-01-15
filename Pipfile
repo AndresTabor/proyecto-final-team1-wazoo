@@ -23,6 +23,7 @@ flask-jwt-extended = "*"
 redis = "*"
 pydantic = "*"
 email-validator = "*"
+flask-mail = "*"
 
 [requires]
 python_version = "3.10"

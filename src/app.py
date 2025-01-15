@@ -1,21 +1,26 @@
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
+import base64
 from datetime import timedelta
 import os
+import bcrypt
 from flask import Flask, request, jsonify, url_for
+from flask_mail import Mail, Message
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
+from pydantic import ValidationError
+from sqlalchemy.exc import SQLAlchemyError
 import redis
 
 
 from admin import setup_admin
 from config import jwt_redis_blocklist
-from models import db, User
-from routes import user_bp, post_bp, jwt_redis_blocklist
+from models import db, User, UserUpdatedDto
+from routes import user_bp, post_bp
 
-from flask_jwt_extended import JWTManager
+from flask_jwt_extended import JWTManager, create_access_token, get_jwt, get_jwt_identity, jwt_required
 
 from utils import APIException, generate_sitemap
 #from models import Person
@@ -44,6 +49,17 @@ app.config["JWT_ACCESS_TOKEN_EXPIRES"] = ACCESS_EXPIRES
 jwt = JWTManager(app)
 
 
+app.config.update(
+    MAIL_SERVER='smtp.gmail.com',
+    MAIL_PORT=587,
+    MAIL_USE_TLS=True,
+    MAIL_USERNAME='wazooapp2025@gmail.com',
+    MAIL_PASSWORD='ucjqqkofmtnkwgmj'
+)
+mail = Mail(app)
+
+
+
 
 @jwt.token_in_blocklist_loader
 def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
@@ -64,6 +80,32 @@ def add_claims_to_access_token(identity):
 
 app.register_blueprint(user_bp, url_prefix='/users')
 app.register_blueprint(post_bp)
+
+@app.route('/request-reset-password', methods=["POST"])
+def request_reset_password():
+    email = request.json.get("email")
+    if email is None:
+        raise APIException("Email is required", status_code=400)
+    user = User.query.filter_by(email=email).first()
+    token = create_access_token(identity=str(user.id), expires_delta=timedelta(minutes=3), additional_claims={"email": email}) 
+    token_byte = token.encode('utf-8')
+    token = base64.b64encode(token_byte)
+    
+    reset_link = f"http://localhost:3000/reset-password/{token}"
+    msg = Message(
+        'Mensaje de prueba',
+        sender=app.config["MAIL_USERNAME"],
+        recipients=[email]
+    )
+
+    msg.html = f'<a href="{reset_link}">Aquii</a>'
+
+    mail.send(msg)
+
+    return jsonify({"message":"Email enviado"})
+
+
+
 
 
 # Handle/serialize errors like a JSON object
