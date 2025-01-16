@@ -43,7 +43,15 @@ class User(db.Model):
             "fullname": self.fullname,
             "email": self.email,
             "is_active": self.is_active,
-            "date_at": self.date_at,
-            "role": self.role
-            # do not serialize the password, its a security breach
+            "date_at": self.date_at.isoformat(),
+            "role": self.role.value,
+            "followers": [follower.serialize_basic() for follower in self.followers],
+            "following": [followed.serialize_basic() for followed in self.following],
+        }
+
+    def serialize_basic(self):
+        return {
+            "id": self.id,
+            "fullname": self.fullname,
+            "email": self.email,
         }
