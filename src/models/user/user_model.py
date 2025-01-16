@@ -17,7 +17,7 @@ class User(db.Model):
     is_active = db.Column(db.Boolean(), unique=False, nullable=False, default=True)
     date_at = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
     role = db.Column(db.Enum(User_Role, name="use_role_enum"), nullable=False, default=User_Role.CLIENT)
-
+    
     followers = db.relationship(
         "User", secondary="favorites", 
         primaryjoin="User.id==favorites.c.user_from_id", 
