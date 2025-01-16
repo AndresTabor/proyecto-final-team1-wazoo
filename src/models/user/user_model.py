@@ -20,16 +20,16 @@ class User(db.Model):
 
     followers = db.relationship(
         "User", secondary="favorites", 
-        primaryjoin="User.id==favorites.c.user_from_id", 
-        secondaryjoin="User.id==favorites.c.user_to_id", 
+        primaryjoin="User.id==favorites.c.user_to_id", 
+        secondaryjoin="User.id==favorites.c.user_from_id", 
         back_populates="following"
     )
 
     following = db.relationship(
         "User", 
         secondary="favorites", 
-        primaryjoin="User.id==favorites.c.user_to_id", 
-        secondaryjoin="User.id==favorites.c.user_from_id", 
+        primaryjoin="User.id==favorites.c.user_from_id", 
+        secondaryjoin="User.id==favorites.c.user_to_id", 
         back_populates="followers"
     )
 
