@@ -11,14 +11,13 @@ from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
 from pydantic import ValidationError
-from sqlalchemy.exc import SQLAlchemyError
 import redis
 
 
 from admin import setup_admin
 from config import jwt_redis_blocklist
-from models import db, User, UserUpdatedDto
-from routes import user_bp, post_bp
+from models import db, User
+from routes import user_bp, post_bp, favorites_bp
 
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt, get_jwt_identity, jwt_required
 
@@ -80,6 +79,7 @@ def add_claims_to_access_token(identity):
 
 app.register_blueprint(user_bp, url_prefix='/users')
 app.register_blueprint(post_bp)
+app.register_blueprint(favorites_bp, url_prefix='/favorites')
 
 @app.route('/request-reset-password', methods=["POST"])
 def request_reset_password():
