@@ -3,7 +3,7 @@ from models import Post, db
 
 post_bp = Blueprint('post_bp', __name__)
 
-@post_bp.route('/post', methods=['POST'])
+@post_bp.route('/', methods=['POST'])
 def create_new_post():
     try:
         data = request.json
@@ -35,7 +35,7 @@ def create_new_post():
     except Exception as e:
         return jsonify({"error": "Ocurrió un error al crear la publicación", "details": str(e)}), 500
 
-@post_bp.route('/post', methods=['GET'])
+@post_bp.route('/', methods=['GET'])
 def get_all_post():
     try:
         # consultar todas las publicaciones en la db
@@ -48,7 +48,7 @@ def get_all_post():
         return jsonify({"error": "Ocurrió un error al obtener las publicaciones", "details": str(e)}), 500
 
 # GET SINGLE POST
-@post_bp.route('/post/<int:id>', methods=['GET'])
+@post_bp.route('/<int:id>', methods=['GET'])
 def get_post_by_id(id):
     post = Post.query.get(id)
     if post is None:

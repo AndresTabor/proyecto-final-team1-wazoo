@@ -78,7 +78,7 @@ def add_claims_to_access_token(identity):
         }
 
 app.register_blueprint(user_bp, url_prefix='/users')
-app.register_blueprint(post_bp)
+app.register_blueprint(post_bp, url_prefix='/posts')
 app.register_blueprint(favorites_bp, url_prefix='/favorites')
 
 @app.route('/request-reset-password', methods=["POST"])
