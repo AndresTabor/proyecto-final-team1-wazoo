@@ -46,3 +46,11 @@ def get_all_post():
         }), 200
     except Exception as e:
         return jsonify({"error": "Ocurrió un error al obtener las publicaciones", "details": str(e)}), 500
+
+# GET SINGLE POST
+@post_bp.route('/post/<int:id>', methods=['GET'])
+def get_post_by_id(id):
+    post = Post.query.get(id)
+    if post is None:
+        return jsonify({"error": "Post not found"}), 404
+    return jsonify(post.serialize()), 200
