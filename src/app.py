@@ -86,19 +86,24 @@ def request_reset_password():
     email = request.json.get("email")
     if email is None:
         raise APIException("Email is required", status_code=400)
+    
     user = User.query.filter_by(email=email).first()
+    if user is None:
+        return jsonify({"message":"User not found"}), 404
+    
     token = create_access_token(identity=str(user.id), expires_delta=timedelta(minutes=3), additional_claims={"email": email}) 
     token_byte = token.encode('utf-8')
     token = base64.b64encode(token_byte)
     
     reset_link = f"http://localhost:3000/reset-password/{token}"
     msg = Message(
-        'Mensaje de prueba',
+        'Recover your password',
         sender=app.config["MAIL_USERNAME"],
         recipients=[email]
     )
 
-    msg.html = f'<a href="{reset_link}">Aquii</a>'
+    with open("src/config/recover_pass.htm", "r", encoding="utf-8") as file:
+        msg.html = file.read().replace("[Nombre del Usuario]", user.fullname).replace("[ENLACE_PERSONALIZADO]", reset_link)
 
     mail.send(msg)
 
