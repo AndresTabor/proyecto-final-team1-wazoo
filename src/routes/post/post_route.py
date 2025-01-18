@@ -54,3 +54,35 @@ def get_post_by_id(id):
     if post is None:
         return jsonify({"error": "Post not found"}), 404
     return jsonify(post.serialize()), 200
+
+#EDIT POST
+@post_bp.route('/<int:id>', methods=['PUT'])
+def update_post(id):
+    try:
+        post = Post.query.get(id)
+        if not post:
+            return jsonify({"error": "Post not found"}), 404
+        data = request.json
+        # actualiza solo lo enviado en la solicitud
+        if 'profession_title' in data:
+            post.profession_title = data['profession_title']
+        if 'description' in data:
+            post.description = data['description']
+        if 'price_per_hour' in data:
+            post.price_per_hour = data['price_per_hour']
+        if 'experience' in data:
+            post.experience = data['experience']
+        if 'image_url' in data:
+            post.image_url = data['image_url']
+        if 'location' in data:
+            post.location = data['location']
+        db.session.commit()
+        return jsonify({
+            "status": "success",
+            "message": "Post actualizado exitosamente",
+            "data": post.serialize()
+        }), 200
+    except Exception as e:
+        return jsonify({"error": "Ocurrió un error al actualizar el post", "details": str(e)}), 500
+    
+#
