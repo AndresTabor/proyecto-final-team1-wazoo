@@ -36,7 +36,7 @@ def add_favorite():
             "msg": "Error during update",
             "error": str(e)
         }), 500
-    return jsonify({"msg": "Favorito creado exitosamente"}), 201
+    return jsonify(user_to.serialize_basic()), 201
 
 @favorites_bp.route('/remove/<int:user_to_id>', methods=["DELETE"])
 @jwt_required()
@@ -70,7 +70,8 @@ def get_favorites():
             {
                 "id": favorite.id,
                 "fullname": favorite.fullname,
-                "email": favorite.email
+                "email": favorite.email,
+                "image": favorite.image,
             }
             for favorite in favorites
         ]

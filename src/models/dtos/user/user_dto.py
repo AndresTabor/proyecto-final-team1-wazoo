@@ -23,6 +23,8 @@ class UserUpdatedDto(BaseModel):
     fullname: str | None  = Field(default=None) 
     email: EmailStr | None =  Field(default=None) 
     password: str | None =  Field(default=None)
+    location: str | None = Field(default=None)
+    image: str | None = Field(default=None)
 
     @field_validator('password')
     @classmethod

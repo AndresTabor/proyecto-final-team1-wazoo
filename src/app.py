@@ -87,7 +87,7 @@ def request_reset_password():
     if email is None:
         raise APIException("Email is required", status_code=400)
     
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(email=email).first()        
     if user is None:
         return jsonify({"message":"User not found"}), 404
     
