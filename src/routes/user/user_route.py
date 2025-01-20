@@ -170,6 +170,13 @@ def get_all_users():
     users = User.query.all()
     return jsonify([user.serialize() for user in users]), 200
 
+@user_bp.route("/<int:id>", methods=["GET"])
+def get_user_by_id(id):
+    user = User.query.get(id)
+    if user is None:
+        return jsonify({"msg": "User not found"}), 404
+    return jsonify(user.serialize()), 200
+
 
 @user_bp.route('/reset-password',methods=["POST"])
 @jwt_required()
