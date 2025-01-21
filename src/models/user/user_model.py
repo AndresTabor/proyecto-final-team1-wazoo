@@ -17,6 +17,8 @@ class User(db.Model):
     is_active = db.Column(db.Boolean(), unique=False, nullable=False, default=True)
     date_at = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
     role = db.Column(db.Enum(User_Role, name="use_role_enum"), nullable=False, default=User_Role.CLIENT)
+    
+    posts = db.relationship('Post', backref='user', lazy=True) # relación con post
 
     followers = db.relationship(
         "User", secondary="favorites", 
@@ -47,6 +49,7 @@ class User(db.Model):
             "role": self.role.value,
             "followers": [follower.serialize_basic() for follower in self.followers],
             "following": [followed.serialize_basic() for followed in self.following],
+            "posts": [post.serialize() for post in self.posts]  # serializar posts
         }
 
     def serialize_basic(self):

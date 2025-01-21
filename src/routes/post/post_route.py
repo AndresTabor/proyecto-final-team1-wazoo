@@ -19,7 +19,8 @@ def create_new_post():
             price_per_hour=data['price_per_hour'],
             experience=data['experience'],
             image_url=data['image_url'],
-            location=data['location']
+            location=data['location'],
+            user_id=data['user_id']
         )
 
         # guarda nuevo post en la db
