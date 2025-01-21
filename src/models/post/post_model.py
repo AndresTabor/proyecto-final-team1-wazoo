@@ -9,8 +9,11 @@ class Post(db.Model):
     image_url = db.Column(db.String(255), nullable=False)
     location = db.Column(db.String(100), nullable=False)
 
+    # relación con User
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
     def __repr__(self):
-        return '<Post %r>' % self.id
+        return f'<Post {self.profession_title}>'
 
     def serialize(self):
         return {
@@ -20,5 +23,6 @@ class Post(db.Model):
             "price_per_hour": self.price_per_hour,
             "experience": self.experience,
             "image_url": self.image_url,
-            "location": self.location
+            "location": self.location,
+            "user": self.user.serialize_basic()  # incluye datos basicos del usuario
         }
