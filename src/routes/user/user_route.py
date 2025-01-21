@@ -7,7 +7,7 @@ from pydantic import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
 from config import jwt_redis_blocklist, role_required
 
-from models import User, db, UserDto, UserUpdatedDto
+from models import User, db, UserDto, UserUpdatedDto, Post
 
 
 user_bp = Blueprint('user_bp', __name__)
@@ -200,3 +200,13 @@ def reset_password():
                 "error": str(e)
             }), 500 
     return jsonify({"msg:": "password saved"}), 200
+
+
+# peticion para obtener posts de un usuario
+@user_bp.route('/<int:user_id>/posts', methods=['GET'])
+def get_user_posts(user_id):
+    try:
+        posts = Post.query.filter_by(user_id=user_id).all()
+        return jsonify([post.serialize() for post in posts]), 200
+    except Exception as e:
+        return jsonify({"error": "No se pudieron obtener los posts", "details": str(e)}), 500

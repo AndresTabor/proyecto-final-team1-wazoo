@@ -24,5 +24,5 @@ class Post(db.Model):
             "experience": self.experience,
             "image_url": self.image_url,
             "location": self.location,
-            "user_id": self.user_id  # id de usuario relacionado
+            "user": self.user.serialize_basic()  # incluye datos basicos del usuario
         }
