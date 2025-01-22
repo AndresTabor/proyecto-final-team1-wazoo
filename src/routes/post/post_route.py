@@ -1,5 +1,7 @@
 from flask import Blueprint, request, jsonify
 from models import Post, db
+# importamos la funcion geodesic 
+from geopy.distance import geodesic
 
 post_bp = Blueprint('post_bp', __name__)
 
@@ -47,6 +49,88 @@ def get_all_post():
         }), 200
     except Exception as e:
         return jsonify({"error": "Ocurrió un error al obtener las publicaciones", "details": str(e)}), 500
+
+# ruta para los post filtrados
+@post_bp.route('/filter_posts', methods=['GET'])
+def get_filtered_posts():
+    try:
+        
+        profession_title = request.args.get('profession_title', type=str)
+        location = request.args.get('location', type=str)
+        min_price = request.args.get('min_price', type=float)
+        max_price = request.args.get('max_price', type=float)
+        latitude = request.args.get('latitude', type=float)
+        longitude = request.args.get('longitude', type=float)
+        page = request.args.get('page', 1, type=int)  # numero de página (por defecto 1)
+        limit = request.args.get('limit', 10, type=int)  # numero de resultados por página (por defecto 10)
+
+        query = Post.query
+
+        if profession_title:
+            query = query.filter(Post.profession_title.ilike(f"%{profession_title}%"))
+        
+        if location:
+            query = query.filter(Post.location.ilike(f"%{location}%"))
+
+        if min_price:
+            query = query.filter(Post.price_per_hour >= min_price)
+        if max_price:
+            query = query.filter(Post.price_per_hour <= max_price)
+
+        # si se introduce la latitud y longitud, filtramos por proximidad
+        if latitude and longitude:
+            posts = query.all()
+            nearby_posts = []
+            for post in posts:
+                post_location = post.location.split(',')
+                post_lat = float(post_location[0])
+                post_lon = float(post_location[1])
+                # geodesic calcula la distancia entre dos puntos
+                distance = geodesic((latitude, longitude), (post_lat, post_lon)).km
+                if distance <= 50:
+                    nearby_posts.append(post)
+            
+            #paginacion de los resultados a menos de 50km
+            total_posts = len(nearby_posts)
+            total_pages = (total_posts // limit) + (1 if total_posts % limit > 0 else 0)
+            start = (page - 1) * limit
+            end = start + limit
+            paginated_posts = nearby_posts[start:end]
+            
+            return jsonify({
+                "status": "success",
+                "data": [post.serialize() for post in paginated_posts],
+                "pagination": {
+                    "current_page": page,
+                    "total_pages": total_pages,
+                    "total_posts": total_posts,
+                    "per_page": limit
+                }
+            }), 200
+        else:
+            #paginacion sin proximidad
+            total_posts = query.count()
+            total_pages = (total_posts // limit) + (1 if total_posts % limit > 0 else 0)
+            start = (page - 1) * limit
+            end = start + limit
+            filtered_posts = query.offset(start).limit(limit).all()
+            
+            return jsonify({
+                "status": "success",
+                "data": [post.serialize() for post in filtered_posts],
+                "pagination": {
+                    "current_page": page,
+                    "total_pages": total_pages,
+                    "total_posts": total_posts,
+                    "per_page": limit
+                }
+            }), 200
+
+    except Exception as e:
+        return jsonify({"error": "Ocurrió un error al obtener las publicaciones filtradas", "details": str(e)}), 500
+
+
+
 
 # GET SINGLE POST
 @post_bp.route('/<int:id>', methods=['GET'])
