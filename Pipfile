@@ -24,6 +24,7 @@ redis = "*"
 pydantic = "*"
 email-validator = "*"
 flask-mail = "*"
+geopy = "*"
 
 [requires]
 python_version = "3.10"

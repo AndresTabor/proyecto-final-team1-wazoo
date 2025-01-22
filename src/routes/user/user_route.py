@@ -216,4 +216,4 @@ def get_user_posts(user_id):
         posts = Post.query.filter_by(user_id=user_id).all()
         return jsonify([post.serialize() for post in posts]), 200
     except Exception as e:
-        return jsonify({"error": "No se pudieron obtener los posts", "details": str(e)}), 500
+        return jsonify({"error": "No se pudieron obtener los posts ", "details": str(e)}), 500
