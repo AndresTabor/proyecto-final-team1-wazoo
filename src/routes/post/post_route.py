@@ -170,4 +170,19 @@ def update_post(id):
     except Exception as e:
         return jsonify({"error": "Ocurrió un error al actualizar el post", "details": str(e)}), 500
     
-#
+# DELETE POST
+@post_bp.route('/<int:id>', methods=['DELETE'])
+def delete_post(id):
+    try:
+        post = Post.query.get(id)
+        if not post:
+            return jsonify({"error": "Post no encontrado"}), 404
+        db.session.delete(post)
+        db.session.commit()
+        return jsonify({
+            "status": "success",
+            "message": "Post eliminado exitosamente"
+        }), 200
+    except Exception as e:
+        return jsonify({"error": "Ocurrió un error al eliminar el post", "details": str(e)}), 500
+
