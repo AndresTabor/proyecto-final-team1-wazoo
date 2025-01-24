@@ -62,7 +62,7 @@ def login():
 @jwt_required()
 def logout():
     jti = get_jwt()["jti"]  
-    jwt_redis_blocklist.set(jti, "", timedelta(minutes=15))  
+    # jwt_redis_blocklist.set(jti, "", timedelta(minutes=15))  
     return jsonify(msg="Logout successful")
 
 @user_bp.route("/profile", methods=["DELETE"])
